@@ -53,16 +53,13 @@ public class Main extends Application {
             }else if(event.getCode() == KeyCode.R){
                 game.prepare();
             }else if(event.getCode() == KeyCode.L){
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("open record file");
-                File file = fileChooser.showOpenDialog(primaryStage);
-                System.out.println("here");
-                game.loadRecord(file);
+
+                game.loadRecord(primaryStage);
             }
         });
 
         primaryStage.setScene(scene);
-        primaryStage.setTitle("HuLuWa Battle");
+        primaryStage.setTitle("HuLuWa Fight Against Monster");
         primaryStage.show();
 
 

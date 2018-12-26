@@ -76,7 +76,7 @@ public class Creature extends ImageView implements Runnable{
                 //setLayout(nx, ny);
                 game.getGround().placeCreature(nx, ny, this);
                 try {
-                    game.getBufferedWriter().write(String.format("(%d, %d)->(%d, %d)%n", x, y, nx, ny));
+                    game.getBufferedWriter().write(String.format("(%d,%d)->(%d,%d)%n", x, y, nx, ny));
                 }catch (IOException e){
                     System.err.println("unable to record");
                 }
@@ -89,14 +89,14 @@ public class Creature extends ImageView implements Runnable{
                         game.getGround().clearCreature(x, y);
                         game.getGround().placeCreature(nx, ny, this);
                         try {
-                            game.getBufferedWriter().write(String.format("(%d, %d)->(%d, %d)%n", x, y, nx, ny));
+                            game.getBufferedWriter().write(String.format("(%d,%d)->(%d,%d)%n", x, y, nx, ny));
                         }catch (IOException e){
                             System.err.println("unable to record");
                         }
                     }else{  //死在自己的格子
                         game.getGround().clearCreature(x, y);
                         try {
-                            game.getBufferedWriter().write(String.format("(%d, %d)%n", x, y));
+                            game.getBufferedWriter().write(String.format("(%d,%d)%n", x, y));
                         }catch (IOException e){
                             System.err.println("unable to record");
                         }

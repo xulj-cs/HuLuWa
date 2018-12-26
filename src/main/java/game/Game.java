@@ -2,14 +2,18 @@ package game;
 
 import creature.*;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static utility.Constants.*;
 
@@ -21,8 +25,10 @@ public class Game {
     }
 
     private BufferedWriter bufferedWriter = null;
-    private BufferedReader bufferedReader = null;
+
     // (t,f) start(Space) ->(f,t) over->(f,f) -> prepare(R)->(t,f)
+    // (t,f) replay(Space) ->(f,t) over->(f,f) -> prepare(R)->(t,f)
+
     private boolean isReady = true;
     private boolean isActive = false;
 
@@ -44,28 +50,43 @@ public class Game {
         return lock;
     }
 
+    public void replayMove(int x, int y, int nx, int ny){
+        Creature c1 = getGround().getCreature(x, y);
+        Creature c2 = getGround().getCreature(nx, ny);
+        assert c1 != null;
 
-    public void loadRecord(File file){
-        try {
-            bufferedReader = new BufferedReader(new FileReader(file));
-            
-            String str = null;
-            while((str = bufferedReader.readLine())!= null){
-                System.out.println(str);
-            }
-        }catch (IOException e){
-            System.err.println("Something Wrong");
+        getGround().clearCreature(x, y);
+        getGround().placeCreature(nx, ny, c1);
+
+        if(c2!=null){
+            c2.beKilled();
         }
+    }
 
+    public void replayStay(int x, int y){
+        Creature c = getGround().getCreature(x, y);
+        assert c != null;
+        c.beKilled();
+        getGround().clearCreature(x, y);
+
+    }
+
+    public void loadRecord(Stage primaryStage){
+        if(isReady && !isActive) {
+
+            isActive = true;
+            isReady = false;
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("open record file");
+            fileChooser.setInitialDirectory(new File("."));
+            File file = fileChooser.showOpenDialog(primaryStage);
+            new Replay(this, file);
+        }
     }
 
     public Game(){
         initGame();
-        try {
-            bufferedWriter = new BufferedWriter(new FileWriter(RECORD_FILENAME));
-        }catch (IOException e){
-            System.err.println("unable to open file :" + RECORD_FILENAME);
-        }
+
 
     }
 
@@ -86,6 +107,13 @@ public class Game {
 
             isActive = true;
             isReady = false;
+
+            try {
+                bufferedWriter = new BufferedWriter(new FileWriter(RECORD_FILENAME));
+            }catch (IOException e){
+                System.err.println("unable to open file :" + RECORD_FILENAME);
+            }
+
             System.out.println("Game start!");
 
             executorService = Executors.newFixedThreadPool(creatures.size());
