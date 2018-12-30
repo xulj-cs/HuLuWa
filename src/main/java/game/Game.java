@@ -1,8 +1,6 @@
 package game;
 
 import creature.*;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -12,10 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 
 import static utility.Constants.*;
 
@@ -31,35 +25,28 @@ public class Game {
     // (t,f) start(Space) ->(f,t) over->(f,f) -> prepare(R)->(t,f)
     // (t,f) replay(Space) ->(f,t) over->(f,f) -> prepare(R)->(t,f)
 
-    private boolean isReady = true;
-    private boolean isActive = false;
+    boolean isReady = false;
+    boolean isActive = false;
 
     private Ground ground = new Ground();
-    private Text statusBar = new Text();
 
-    {
-        statusBar.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
-        statusBar.setLayoutX(800);
-        statusBar.setLayoutY(100);
-
+    public Text getStatusBar() {
+        return statusBar;
     }
+
+    private Text statusBar = new Text();
 
     private List<Creature> creatures = new ArrayList<>();
 
     // game threads : one creature has one thread
     private ExecutorService executorService = null;
 
-    private Lock lock = new ReentrantLock();
-
-    private int level = 0;
+    private int level = -1;
 
     public Ground getGround() {
         return ground;
     }
 
-    public Lock getLock() {
-        return lock;
-    }
 
     public void setStatus(String status){
         statusBar.setText(status);
@@ -69,70 +56,56 @@ public class Game {
         statusBar.setText(statusBar.getText() + status);
     }
 
-    public void replayMove(int x, int y, int nx, int ny){
-        Creature c1 = getGround().getCreature(x, y);
-        Creature c2 = getGround().getCreature(nx, ny);
-        assert c1 != null;
 
-        getGround().clearCreature(x, y);
-        getGround().placeCreature(nx, ny, c1);
-
-        if(c2!=null){
-            c2.beKilled();
-        }
-    }
-
-    public void replayStay(int x, int y){
-        Creature c = getGround().getCreature(x, y);
-        assert c != null;
-        c.beKilled();
-        getGround().clearCreature(x, y);
-
-    }
 
     public void loadRecord(Stage primaryStage){
-        if(isReady && !isActive) {
+        if(!isReady && !isActive) {
 
             isActive = true;
-            isReady = false;
+
+            clearGame();
+
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("open record file");
             fileChooser.setInitialDirectory(new File("."));
             File file = fileChooser.showOpenDialog(primaryStage);
+
             new Replay(this, file);
+
         }
     }
 
     public Game(){
-        initGame();
+        // start a new game or load a game record
+        setStatus("Press S to start a new game\n" +
+                "Press L to load a game record");
     }
 
-    // game startGame!
-    public void prepare(){
+    // game start!
+    public void next(){
         if(!isReady && !isActive) {
             clearGame();
             level ++;
-
-            initGame();
             isReady = true;
+            initGame(level);
 
-            System.out.println("I'm ready to start");
+            //Record
+            try {
+                bufferedWriter = new BufferedWriter(new FileWriter(RECORD_FILENAME));
+                bufferedWriter.write(level+"\n");
+            }catch (IOException e){
+                e.printStackTrace();
+            }
 
+            setStatus("Game is ready,\npress SPACE to run");
         }
     }
     // game startGame!
-    public void start(){
+    public void run(){
         if(isReady && !isActive) {
 
             isActive = true;
             isReady = false;
-
-            try {
-                bufferedWriter = new BufferedWriter(new FileWriter(RECORD_FILENAME));
-            }catch (IOException e){
-                System.err.println("unable to open file :" + RECORD_FILENAME);
-            }
-
 
             setStatus("Game start!!\n" +
                     "----------------\n");
@@ -143,12 +116,13 @@ public class Game {
         }
     }
 
-    private void clearGame(){
+    public void clearGame(){
+
         creatures.clear();
         ground.clearAllCreature();
     }
 
-    private void initGame() {
+    public void initGame(int level) {
 
         // load the game ZhenFa
         int x = 0, y = 0;
@@ -193,9 +167,6 @@ public class Game {
                 x += 1;
             }
         }
-        ground.getChildren().add(statusBar);
-        setStatus("Game is ready,\npress SPACE to start");
-
     }
 
 
@@ -225,7 +196,8 @@ public class Game {
 
             addStatus("-----------------\n"+
                     "Game Over!!\n" +
-                    "Press R to restart" );
+                    "Press N to the next level\n" +
+                    "Press L to load a game record" );
         }
     }
 }

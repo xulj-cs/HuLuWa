@@ -4,9 +4,7 @@ import static utility.Constants.*;
 
 import creature.Creature;
 import javafx.scene.layout.Pane;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
+
 
 public class Ground extends Pane {
 

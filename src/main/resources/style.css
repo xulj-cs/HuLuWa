@@ -4,3 +4,9 @@
     /*-fx-background-repeat: no-repeat;*/
     /*-fx-background-position: center;*/
 }
+#status-text {
+    -fx-font-size: 15px;
+    -fx-font-family: "Arial Black";
+    -fx-fill: #FF0000;
+    -fx-effect: innershadow( three-pass-box , rgba(0,0,0,0.7) , 6, 0.0 , 0 , 2 );
+}

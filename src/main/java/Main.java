@@ -13,8 +13,7 @@ import game.Ground;
 
 import java.io.File;
 
-import static utility.Constants.GROUND_OFFSET_X;
-import static utility.Constants.GROUND_OFFSET_Y;
+import static utility.Constants.*;
 
 public class Main extends Application {
 
@@ -32,19 +31,21 @@ public class Main extends Application {
         // init the game world
         Game game = new Game();
 
-        // show the battleGround
+        // show the battle ground
         Ground ground = game.getGround();
         ground.setLayoutX(GROUND_OFFSET_X);
         ground.setLayoutY(GROUND_OFFSET_Y);
         root.getChildren().add(ground);
 
-
+        //show the status bar
+        Text statusBar = game.getStatusBar();
+        statusBar.setId("status-text");
+        statusBar.setLayoutX(STATUS_BAR_OFFSET_X);
+        statusBar.setLayoutY(STATUS_BAR_OFFSET_Y);
+        root.getChildren().add(statusBar);
 
         // set the scene size and fix it
         Image backGroundImage = new Image(getClass().getResource("images/ground.png").toExternalForm());
-
-
-
 
         Scene scene = new Scene(root, backGroundImage.getWidth(), backGroundImage.getHeight());
         // set the scene style from resource css file
@@ -52,13 +53,17 @@ public class Main extends Application {
 
         // startGame the game when game key presses
         scene.setOnKeyPressed(event -> {
-
-            if(event.getCode() == KeyCode.SPACE) {
-                game.start();
-            }else if(event.getCode() == KeyCode.R){
-                game.prepare();
-            }else if(event.getCode() == KeyCode.L){
-                game.loadRecord(primaryStage);
+            switch (event.getCode()){
+                case SPACE:
+                    game.run();
+                    break;
+                case S:
+                case N:
+                    game.next();
+                    break;
+                case L:
+                    game.loadRecord(primaryStage);
+                    break;
             }
         });
 

@@ -9,17 +9,21 @@ import utility.Resource;
 import java.io.IOException;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
 
 public class Creature extends ImageView implements Runnable{
+
+
+    public String getName() {
+        return name;
+    }
 
     private String name;
 
     private Game game;
 
-    protected boolean alive = true;
+    private boolean alive = true;
 
-    public Creature(String name){
+    Creature(String name){
         this.name = name;
         setImage();
     }
@@ -48,7 +52,7 @@ public class Creature extends ImageView implements Runnable{
     }
 
 
-     public void tryMove(int dx, int dy){
+     private void tryMove(int dx, int dy){
         int x = (int)getLayoutX() / TILE_WIDTH;
         int y = (int)getLayoutY() / TILE_HEIGHT;
         int nx = x + dx;
@@ -65,10 +69,9 @@ public class Creature extends ImageView implements Runnable{
         if( nx == x && ny == y)
             return;
 
-        Lock lock = game.getLock();
-
-        lock.lock();
-        try{
+        synchronized (game){
+            if(!isAlive())
+                return;
             Creature c = game.getGround().getCreature(nx, ny);
             if (c == null){
                 // (x,y) -> (nx, ny)
@@ -85,7 +88,7 @@ public class Creature extends ImageView implements Runnable{
 
                     fightAgainst(c);
                     boolean isWin = this.isAlive();
-                    if(isWin){  //前进到对方的格子
+                    if(isWin){
                         game.getGround().clearCreature(x, y);
                         game.getGround().placeCreature(nx, ny, this);
                         try {
@@ -93,7 +96,7 @@ public class Creature extends ImageView implements Runnable{
                         }catch (IOException e){
                             System.err.println("unable to record");
                         }
-                    }else{  //死在自己的格子
+                    }else{
                         game.getGround().clearCreature(x, y);
                         try {
                             game.getBufferedWriter().write(String.format("(%d,%d)%n", x, y));
@@ -105,10 +108,6 @@ public class Creature extends ImageView implements Runnable{
                     game.checkGameOver();
                 }
             }
-
-
-        }finally {
-            lock.unlock();
         }
     }
 
@@ -118,11 +117,15 @@ public class Creature extends ImageView implements Runnable{
         Random rand = new Random();
         try{
             while(isAlive()) {
-                int dx = rand.nextInt(3)-1;
-                int dy = rand.nextInt(3)-1;
-//            System.out.println(name + "(" + dx + "," + dy + ")");
+                int dx = 0, dy = 0;
+                switch (rand.nextInt(4)){
+                    case 0:dx = +1;break;
+                    case 1:dx = -1;break;
+                    case 2:dy = +1;break;
+                    case 3:dy = -1;break;
+                }
                 tryMove(dx, dy);
-                TimeUnit.MILLISECONDS.sleep(50 + rand.nextInt(100));
+                TimeUnit.MILLISECONDS.sleep(TIMEOUT + rand.nextInt(20));
 
             }
         }catch (InterruptedException e) {
