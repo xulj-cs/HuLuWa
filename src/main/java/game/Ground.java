@@ -49,7 +49,4 @@ public class Ground extends Pane {
             }
         }
     }
-
-
-
 }

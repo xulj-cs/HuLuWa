@@ -23,9 +23,16 @@ public class Creature extends ImageView implements Runnable{
 
     private boolean alive = true;
 
-    Creature(String name){
+    private boolean haveImage = false;
+
+    public Creature(String name, boolean haveImage){
         this.name = name;
+        this.haveImage = haveImage;
         setImage();
+    }
+
+    public Creature(String name ){
+        this(name, true);
     }
 
     public void setGame(Game game) {
@@ -137,21 +144,23 @@ public class Creature extends ImageView implements Runnable{
     }
 
     public void fightAgainst(Creature c){
-        assert this.isAlive();
-        assert c.isAlive();
 
         Random rand = new Random();
         if(rand.nextBoolean()) {
             c.beKilled();
-            game.addStatus(this.name + " killed " + c.name + "!!");
+            if(game!=null)
+                game.addStatus(this.name + " killed " + c.name + "!!");
         }
         else {
             this.beKilled();
-            game.addStatus(c.name + " killed " + this.name + "!!");
+            if(game!=null)
+                game.addStatus(c.name + " killed " + this.name + "!!");
         }
     }
 
     private void setImage(){
+        if(!haveImage)
+            return;
         String imageFileName = (alive? "":"dead_") + name + ".png";
         setImage(Resource.getImage(imageFileName));
         setFitWidth(TILE_WIDTH);

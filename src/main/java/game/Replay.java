@@ -31,7 +31,8 @@ public class Replay extends Thread{
     public Replay(Game game, File file){
         this.game = game;
         this.file = file;
-        game.setStatus("Replay...\n");
+        game.setStatus("Replay...\n" +
+                "--------------\n");
         game.initGame(getLevel());
         start();
     }
@@ -93,7 +94,8 @@ public class Replay extends Thread{
                     System.err.println("Interrupted");
                 }
             }
-            game.addStatus("Replay is over\n" +
+            game.addStatus("---------------\n" +
+                    "Replay is over\n" +
                     "Press N to the next level\n" +
                     "Press L to load a game record\n");
             game.isActive = false;
