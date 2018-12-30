@@ -1,6 +1,6 @@
 package creature;
 
-public class Scorpion extends Creature {
+public class Scorpion extends Monster {
     public Scorpion(){
         super("scorpion");
     }
