@@ -5,6 +5,5 @@ public class TestMain {
     @Test(timeout = 200)
     public void testMain(){
         System.out.println("test");
-        assertEquals(10,8);
     }
 }

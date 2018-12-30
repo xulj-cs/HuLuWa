@@ -1,6 +1,9 @@
 package game;
 
 import creature.*;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -9,11 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 import static utility.Constants.*;
 
@@ -33,6 +35,15 @@ public class Game {
     private boolean isActive = false;
 
     private Ground ground = new Ground();
+    private Text statusBar = new Text();
+
+    {
+        statusBar.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        statusBar.setLayoutX(800);
+        statusBar.setLayoutY(100);
+
+    }
+
     private List<Creature> creatures = new ArrayList<>();
 
     // game threads : one creature has one thread
@@ -40,7 +51,7 @@ public class Game {
 
     private Lock lock = new ReentrantLock();
 
-    private int level = 1;
+    private int level = 0;
 
     public Ground getGround() {
         return ground;
@@ -48,6 +59,14 @@ public class Game {
 
     public Lock getLock() {
         return lock;
+    }
+
+    public void setStatus(String status){
+        statusBar.setText(status);
+    }
+
+    public void addStatus(String status){
+        statusBar.setText(statusBar.getText() + status);
     }
 
     public void replayMove(int x, int y, int nx, int ny){
@@ -86,14 +105,14 @@ public class Game {
 
     public Game(){
         initGame();
-
-
     }
 
     // game startGame!
     public void prepare(){
         if(!isReady && !isActive) {
             clearGame();
+            level ++;
+
             initGame();
             isReady = true;
 
@@ -114,7 +133,9 @@ public class Game {
                 System.err.println("unable to open file :" + RECORD_FILENAME);
             }
 
-            System.out.println("Game start!");
+
+            setStatus("Game start!!\n" +
+                    "----------------\n");
 
             executorService = Executors.newFixedThreadPool(creatures.size());
             for(Creature c : creatures)
@@ -132,9 +153,9 @@ public class Game {
         // load the game ZhenFa
         int x = 0, y = 0;
         int calabashRank = 1;
-
-        for (int i = 0; i < GAME_LEVEL[level].length(); i++) {
-            char item = GAME_LEVEL[level].charAt(i);
+        String levelZhenFa = GAME_LEVEL[level%GAME_LEVEL.length];
+        for (int i = 0; i < levelZhenFa.length(); i++) {
+            char item = levelZhenFa.charAt(i);
             if (item == '\n') {
                 y += 1;
                 x = 0;
@@ -153,6 +174,14 @@ public class Game {
                         c = new Frog();
                         break;
                     }
+                    case 's':{
+                        c = new Scorpion();
+                        break;
+                    }
+                    case 'S':{
+                        c = new Snake();
+                        break;
+                    }
                     default: //
                 }
                 if(c != null) {
@@ -164,6 +193,8 @@ public class Game {
                 x += 1;
             }
         }
+        ground.getChildren().add(statusBar);
+        setStatus("Game is ready,\npress SPACE to start");
 
     }
 
@@ -179,7 +210,8 @@ public class Game {
                 }
             }
         }
-        System.out.println(numOfLeftHuman + "vs" + numOfLeftMonster);
+
+        addStatus(" " + numOfLeftHuman + "vs" + numOfLeftMonster + "\n");
 
         if(numOfLeftHuman == 0 || numOfLeftMonster == 0){
             // game Over
@@ -190,6 +222,10 @@ public class Game {
                 System.err.println("unable to close");
             }
             isActive = false;
+
+            addStatus("-----------------\n"+
+                    "Game Over!!\n" +
+                    "Press R to restart" );
         }
     }
 }

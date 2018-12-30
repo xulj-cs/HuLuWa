@@ -4,6 +4,9 @@ import static utility.Constants.*;
 
 import creature.Creature;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 
 public class Ground extends Pane {
 
@@ -11,13 +14,13 @@ public class Ground extends Pane {
     private Tile[][] tiles = new Tile[GROUND_COLUMN][GROUND_ROW];
 
     public Ground(){
-
         for(int i=0;i<GROUND_COLUMN;i++){
             for(int j=0;j<GROUND_ROW;j++){
                 tiles[i][j] = new Tile();
             }
         }
 	}
+
 
     public Creature getCreature(int x, int y){
         return tiles[x][y].getCreature();

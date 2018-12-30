@@ -138,10 +138,14 @@ public class Creature extends ImageView implements Runnable{
         assert c.isAlive();
 
         Random rand = new Random();
-        if(rand.nextBoolean())
+        if(rand.nextBoolean()) {
             c.beKilled();
-        else
+            game.addStatus(this.name + " killed " + c.name + "!!");
+        }
+        else {
             this.beKilled();
+            game.addStatus(c.name + " killed " + this.name + "!!");
+        }
     }
 
     private void setImage(){

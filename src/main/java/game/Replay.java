@@ -43,7 +43,7 @@ public class Replay extends Thread {
                 }
 
                 try {
-                    TimeUnit.MILLISECONDS.sleep(1000);
+                    TimeUnit.MILLISECONDS.sleep(200);
                 }catch (InterruptedException e){
                     System.err.println("Interrupted");
                 }

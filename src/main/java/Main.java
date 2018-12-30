@@ -3,6 +3,9 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import game.Game;
@@ -37,10 +40,12 @@ public class Main extends Application {
 
 
 
-        //Ground root = new Ground();
-
         // set the scene size and fix it
         Image backGroundImage = new Image(getClass().getResource("images/ground.png").toExternalForm());
+
+
+
+
         Scene scene = new Scene(root, backGroundImage.getWidth(), backGroundImage.getHeight());
         // set the scene style from resource css file
         scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
@@ -53,12 +58,12 @@ public class Main extends Application {
             }else if(event.getCode() == KeyCode.R){
                 game.prepare();
             }else if(event.getCode() == KeyCode.L){
-
                 game.loadRecord(primaryStage);
             }
         });
 
         primaryStage.setScene(scene);
+        primaryStage.setResizable(false);
         primaryStage.setTitle("HuLuWa Fight Against Monster");
         primaryStage.show();
 
